@@ -15,7 +15,7 @@ avec l'algorithme **Construction_des_Sous-Ensembles** du cours (chapitre 3).
 
     python interface.py          # l'interface
     python exemple.py            # l'exemple du cours en console
-    python tests_conversion.py   # les tests
+    python -m unittest           # les 359 tests (ajouter -v pour voir chaque test)
 
 ## Les fichiers
 
@@ -26,9 +26,27 @@ avec l'algorithme **Construction_des_Sous-Ensembles** du cours (chapitre 3).
 | `afd.py`              | La classe `AFD` (le résultat) et `reconnaitre(mot)` : accepté ou non + chemin |
 | `visualisation.py`    | Dessin de l'AFND et de l'AFD avec Graphviz                                  |
 | `exemple.py`          | L'exemple du cours : (a\|b)*abb, Fig. 2 -> Fig. 4, puis test de mots        |
-| `tests_conversion.py` | Tests : exemple du cours, 300 AFND aléatoires, reconnaissance de mots       |
+| `test_afnd.py`        | Tests de `afnd.py` : lecture des saisies, vérifications (138 tests avec `test_afd.py`) |
+| `test_afd.py`         | Tests de `afd.py` : reconnaissance de mots, chemin, symboles invalides      |
+| `test_conversion.py`  | Tests de `conversion.py` : exemple du cours, cas particuliers, AFND aléatoires |
+| `test_visualisation.py` | Tests du dessin (texte Graphviz et image PNG)                             |
+| `test_interface.py`   | Tests de l'interface (fenêtre cachée ; ignorés s'il n'y a pas d'écran)     |
 | `interface.py`        | Saisie de l'AFND, affichage de l'AFD, de la table, des étapes, et test de mots |
 | `captures/`           | Captures d'écran de l'interface                                             |
+
+## Les tests
+
+    python -m unittest                      # tous les tests
+    python -m unittest test_conversion -v   # un seul fichier, en détail
+
+Les tests utilisent `unittest` (fourni avec Python, rien à installer). Ils vérifient notamment :
+- chaque fonction du cours (`epsilon_fermeture`, `transiter`) sur l'exemple du cours ;
+- l'AFD obtenu pour l'exemple du cours (A à E, E final) ;
+- des cas particuliers : état puits ∅, ε-cycles, mot vide, AFND sans transition, sans état final...
+- le cas où le nombre d'états explose (jusqu'à 2^5 = 32 états) ;
+- des centaines d'AFND tirés au hasard : l'AFD accepte exactement les mêmes mots que l'AFND
+  (la simulation de l'AFND est écrite à part, sans réutiliser l'algorithme testé) ;
+- les messages d'erreur, le dessin Graphviz et l'interface.
 
 ## Format de saisie
 
