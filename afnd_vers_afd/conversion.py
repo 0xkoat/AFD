@@ -1,15 +1,8 @@
-"""Conversion d'un AFND en AFD : algorithme Construction_des_Sous-Ensembles (cours, chapitre 3).
-
-Chaque état de l'AFD est un ENSEMBLE d'états de l'AFND.
-(La minimisation de l'AFD n'est pas faite ici.)
-"""
-
 from afd import AFD
 from afnd import EPSILON
 
 
 def trier(etats):
-    """Trie des états pour l'affichage : '2' avant '10' (on trie d'abord par longueur du nom)."""
     return sorted(etats, key=lambda etat: (len(etat), etat))
 
 
@@ -25,8 +18,6 @@ def texte_ensemble(ensemble):
 # ----------------------------------------------------------------------
 
 def epsilon_fermeture(afnd, ensemble):
-    """ε-fermeture(T) : états de l'AFND accessibles depuis un état de T par des ε-transitions
-    uniquement (les états de T eux-mêmes en font partie)."""
     fermeture = set(ensemble)
     a_traiter = list(ensemble)
 
@@ -41,7 +32,6 @@ def epsilon_fermeture(afnd, ensemble):
 
 
 def transiter(afnd, ensemble, symbole):
-    """Transiter(T, x) : états de l'AFND atteints depuis un état de T en lisant le symbole x."""
     atteints = set()
     for etat in ensemble:
         atteints = atteints | afnd.destinations(etat, symbole)
@@ -53,20 +43,12 @@ def transiter(afnd, ensemble, symbole):
 # ----------------------------------------------------------------------
 
 def nom_etat(numero):
-    """Nom de l'état de l'AFD : A, B, C, ... (comme dans le cours), puis S26, S27, ..."""
     if numero < 26:
         return chr(ord("A") + numero)
     return f"S{numero}"
 
 
 def construire_afd(afnd):
-    """Transforme l'AFND en AFD.
-
-    Retourne un triplet (afd, noms, etapes) :
-        afd    : l'AFD obtenu
-        noms   : dictionnaire  ensemble d'états de l'AFND (frozenset) -> nom de l'état dans l'AFD
-        etapes : liste de textes expliquant chaque calcul (comme dans les exemples du cours)
-    """
     etapes = []
 
     # Considérer ε-fermeture(e0) comme l'unique état de D_etats, cet état est non marqué.
@@ -127,7 +109,6 @@ def construire_afd(afnd):
 # ----------------------------------------------------------------------
 
 def table_afd(afd, noms):
-    """Retourne la table de transitions de l'AFD sous forme de texte."""
     contenu = {}                        # nom -> ensemble d'états de l'AFND
     for ensemble, nom in noms.items():
         contenu[nom] = ensemble

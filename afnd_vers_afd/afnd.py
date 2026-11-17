@@ -5,8 +5,9 @@ class AFND:
     def __init__(self, etats, alphabet, etat_initial, etats_finaux, transitions):
         self.etats = etats                 
         self.alphabet = alphabet            
-        self.etat_initial = etat_initial    
-        self.transitions = transitions    
+        self.etat_initial = etat_initial
+        self.etats_finaux = etats_finaux
+        self.transitions = transitions
         self.verifier()
 
     def destinations(self, etat, symbole):
