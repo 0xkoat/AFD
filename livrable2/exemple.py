@@ -1,14 +1,11 @@
 from afd import AFD
 from visualisation import dessiner
 
-# Tâche 1 : définition de l'AFD
 etats = {"q0", "q1", "q2"}
 alphabet = {"a", "b"}
 etat_initial = "q0"
 etats_finaux = {"q2"}
 
-# Tâche 2 : la fonction de transition est un dictionnaire.
-# transitions[etat][symbole] donne l'état atteint après avoir lu le symbole.
 transitions = {
     "q0": {"a": "q1", "b": "q0"},
     "q1": {"a": "q1", "b": "q2"},

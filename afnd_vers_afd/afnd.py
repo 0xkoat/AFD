@@ -1,11 +1,16 @@
-class AFD:
+EPSILON = "ε"
+
+
+class AFND:
     def __init__(self, etats, alphabet, etat_initial, etats_finaux, transitions):
-        self.etats = etats                  
-        self.alphabet = alphabet           
-        self.etat_initial = etat_initial   
-        self.etats_finaux = etats_finaux   
-        self.transitions = transitions     
+        self.etats = etats                 
+        self.alphabet = alphabet            
+        self.etat_initial = etat_initial    
+        self.transitions = transitions    
         self.verifier()
+
+    def destinations(self, etat, symbole):
+        return self.transitions.get(etat, {}).get(symbole, set())
 
     def verifier(self):
         if len(self.etats) == 0:
@@ -20,6 +25,8 @@ class AFD:
                     f"Le symbole « {symbole} » doit être un seul caractère "
                     "(séparer les symboles par des virgules)."
                 )
+            if symbole == EPSILON:
+                raise ValueError("ε n'est pas un symbole de l'alphabet : il sert aux ε-transitions.")
 
         if self.etat_initial not in self.etats:
             raise ValueError(f"L'état initial « {self.etat_initial} » n'est pas dans l'ensemble des états.")
@@ -31,16 +38,12 @@ class AFD:
         for etat, lignes in self.transitions.items():
             if etat not in self.etats:
                 raise ValueError(f"Transition depuis l'état inconnu « {etat} ».")
-            for symbole, destination in lignes.items():
-                if symbole not in self.alphabet:
+            for symbole, destinations in lignes.items():
+                if symbole != EPSILON and symbole not in self.alphabet:
                     raise ValueError(f"Le symbole « {symbole} » (état {etat}) n'est pas dans l'alphabet.")
-                if destination not in self.etats:
-                    raise ValueError(f"La destination « {destination} » (état {etat}) n'est pas un état connu.")
-                
-        for etat in sorted(self.etats):
-            for symbole in sorted(self.alphabet):
-                if symbole not in self.transitions.get(etat, {}):
-                    raise ValueError(f"Transition manquante : delta({etat}, {symbole}) n'est pas définie.")
+                for destination in destinations:
+                    if destination not in self.etats:
+                        raise ValueError(f"La destination « {destination} » (état {etat}) n'est pas un état connu.")
 
 
 # ----------------------------------------------------------------------
@@ -59,22 +62,22 @@ def lire_transitions(texte):
 
         morceaux = ligne.split()
         if len(morceaux) != 3:
-            raise ValueError(f"Ligne {numero} : écrire « état symbole destination » (exemple : q0 a q1).")
+            raise ValueError(f"Ligne {numero} : écrire « état symbole destination » (exemple : 0 a 1 ou 0 ε 1).")
 
         etat, symbole, destination = morceaux
+        if symbole == "eps":
+            symbole = EPSILON
+
         if etat not in transitions:
             transitions[etat] = {}
-        if symbole in transitions[etat]:
-            raise ValueError(
-                f"Ligne {numero} : delta({etat}, {symbole}) est déjà définie "
-                "(un AFD n'a qu'une seule transition par symbole)."
-            )
-        transitions[etat][symbole] = destination
+        if symbole not in transitions[etat]:
+            transitions[etat][symbole] = set()
+        transitions[etat][symbole].add(destination)
     return transitions
 
 
-def creer_afd(texte_etats, texte_alphabet, texte_initial, texte_finaux, texte_transitions):
-    return AFD(
+def creer_afnd(texte_etats, texte_alphabet, texte_initial, texte_finaux, texte_transitions):
+    return AFND(
         set(separer(texte_etats)),
         set(separer(texte_alphabet)),
         texte_initial.strip(),

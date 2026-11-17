@@ -1,17 +1,8 @@
-"""Livrable 2 - Tests de l'automate (tâche 5).
-
-On compare le résultat de l'automate avec le résultat attendu.
-
-Lancer :  python tests_afd.py
-"""
-
 from itertools import product
 
 from afd import AFD
 from exemple import afd_exemple
 
-# Un deuxième automate : mots sur {a, b} avec un nombre PAIR de « a ».
-# Ici le mot vide est accepté, car q0 est à la fois initial et final.
 afd_pair = AFD(
     {"q0", "q1"},
     {"a", "b"},
@@ -25,7 +16,6 @@ afd_pair = AFD(
 
 
 def comparer(description, obtenu, attendu):
-    """Affiche OK ou ECHEC et retourne True si le résultat est celui attendu."""
     if obtenu == attendu:
         print(f"  OK     {description}")
         return True
