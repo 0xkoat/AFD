@@ -3,6 +3,7 @@ import tkinter as tk
 import graphviz
 
 from afnd import creer_afnd
+from afd import formater_chemin
 from conversion import construire_afd, table_afd
 from visualisation import dessiner_afd, dessiner_afnd
 
@@ -31,9 +32,11 @@ class Application:
         self.fenetre = fenetre
         self.image_afnd = None  
         self.image_afd = None
+        self.afd = None  # l'AFD obtenu par la dernière conversion (None avant)
 
         self.construire_saisie()
         self.construire_resultat()
+        self.construire_test()
         fenetre.rowconfigure(1, weight=1) 
 
     # ------------------------------------------------------------------
@@ -81,11 +84,32 @@ class Application:
 
         cadre_texte = tk.LabelFrame(self.fenetre, text="Table de transitions de l'AFD et étapes de l'algorithme", padx=8, pady=8)
         cadre_texte.grid(row=1, column=1, columnspan=2, sticky="nsew", padx=8, pady=8)
-        self.zone_texte = tk.Text(cadre_texte, width=110, height=14, font=("Courier", 10))
+        self.zone_texte = tk.Text(cadre_texte, width=110, height=10, font=("Courier", 10))
         barre = tk.Scrollbar(cadre_texte, command=self.zone_texte.yview)
         self.zone_texte.config(yscrollcommand=barre.set)
         self.zone_texte.pack(side="left", fill="both", expand=True)
         barre.pack(side="right", fill="y")
+
+    def construire_test(self):
+        cadre = tk.LabelFrame(self.fenetre, text="Tester un mot avec l'AFD obtenu", padx=8, pady=8)
+        cadre.grid(row=2, column=0, columnspan=3, sticky="ew", padx=8, pady=8)
+
+        gauche = tk.Frame(cadre)
+        gauche.pack(side="left", anchor="n")
+        tk.Label(gauche, text="Mot à tester (laisser vide pour le mot vide)").pack(anchor="w")
+        self.champ_mot = tk.Entry(gauche, width=34)
+        self.champ_mot.pack(anchor="w")
+        self.champ_mot.bind("<Return>", lambda evenement: self.tester_mot())
+        tk.Button(gauche, text="Tester le mot", command=self.tester_mot).pack(anchor="w", pady=8)
+
+        milieu = tk.Frame(cadre)
+        milieu.pack(side="left", anchor="n", padx=30)
+        self.resultat = tk.Label(milieu, text="", font=("Arial", 12, "bold"), wraplength=320, justify="left")
+        self.resultat.pack(anchor="w")
+
+        tk.Label(cadre, text="Chemin parcouru dans l'AFD :").pack(side="top", anchor="w")
+        self.zone_chemin = tk.Text(cadre, width=40, height=5, font=("Courier", 10))
+        self.zone_chemin.pack(side="top", anchor="w")
 
     # ------------------------------------------------------------------
     # Action : convertir
@@ -110,6 +134,7 @@ class Application:
             self.message.config(text="Graphviz n'est pas installé (commande « dot » introuvable).", fg="red")
             return
 
+        self.afd = afd
         self.image_afnd = tk.PhotoImage(data=png_afnd)
         self.dessin_afnd.config(image=self.image_afnd, width=self.image_afnd.width(), height=self.image_afnd.height())
         self.image_afd = tk.PhotoImage(data=png_afd)
@@ -120,6 +145,34 @@ class Application:
         self.zone_texte.insert("1.0", texte)
 
         self.message.config(text=f"AFND de {len(afnd.etats)} états converti en AFD de {len(afd.etats)} états.", fg="green")
+
+    # ------------------------------------------------------------------
+    # Action : tester un mot
+    # ------------------------------------------------------------------
+
+    def tester_mot(self):
+        if self.afd is None:
+            self.resultat.config(text="Convertissez d'abord l'AFND en AFD.", fg="red")
+            return
+
+        mot = self.champ_mot.get().strip()
+        accepte, chemin, symboles_invalides = self.afd.reconnaitre(mot)
+
+        if len(symboles_invalides) > 0:
+            texte_symboles = ", ".join(f"« {symbole} »" for symbole in symboles_invalides)
+            self.resultat.config(text=f"Mot rejeté : symbole(s) hors de l'alphabet : {texte_symboles}", fg="red")
+            texte_chemin = "(aucun chemin : la lecture n'a pas commencé)"
+        else:
+            if accepte:
+                self.resultat.config(text="Mot accepté", fg="green")
+                nature = "état final"
+            else:
+                self.resultat.config(text="Mot rejeté", fg="red")
+                nature = "état non final"
+            texte_chemin = formater_chemin(mot, chemin) + f"\nÉtat atteint : {chemin[-1]} ({nature})"
+
+        self.zone_chemin.delete("1.0", "end")
+        self.zone_chemin.insert("1.0", texte_chemin)
 
 
 if __name__ == "__main__":

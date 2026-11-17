@@ -23,11 +23,11 @@ avec l'algorithme **Construction_des_Sous-Ensembles** du cours (chapitre 3).
 |-----------------------|-----------------------------------------------------------------------------|
 | `afnd.py`             | La classe `AFND` (delta donne un ensemble d'états, ε autorisé) + lecture des saisies |
 | `conversion.py`       | `epsilon_fermeture`, `transiter` et `construire_afd` (l'algorithme du cours) |
-| `afd.py`              | La classe `AFD` (le résultat) et la reconnaissance d'un mot                 |
+| `afd.py`              | La classe `AFD` (le résultat) et `reconnaitre(mot)` : accepté ou non + chemin |
 | `visualisation.py`    | Dessin de l'AFND et de l'AFD avec Graphviz                                  |
-| `exemple.py`          | L'exemple du cours : (a\|b)*abb, Fig. 2 -> Fig. 4                           |
-| `tests_conversion.py` | Test sur l'exemple du cours + 300 AFND aléatoires                           |
-| `interface.py`        | Saisie de l'AFND, affichage de l'AFD, de la table et des étapes             |
+| `exemple.py`          | L'exemple du cours : (a\|b)*abb, Fig. 2 -> Fig. 4, puis test de mots        |
+| `tests_conversion.py` | Tests : exemple du cours, 300 AFND aléatoires, reconnaissance de mots       |
+| `interface.py`        | Saisie de l'AFND, affichage de l'AFD, de la table, des étapes, et test de mots |
 | `captures/`           | Captures d'écran de l'interface                                             |
 
 ## Format de saisie
@@ -36,6 +36,16 @@ avec l'algorithme **Construction_des_Sous-Ensembles** du cours (chapitre 3).
 - Transitions : une par ligne, `état symbole destination` (`0 a 1`).
 - ε-transition : `0 ε 1` (ou `0 eps 1`).
 - Plusieurs lignes avec le même état et le même symbole = non-déterminisme.
+
+## Tester un mot avec l'AFD
+
+Après la conversion, la zone « Tester un mot avec l'AFD obtenu » (en bas de la fenêtre) permet
+de saisir un mot (touche Entrée ou bouton) :
+
+- le mot est **accepté** si l'état atteint à la fin de la lecture est final, sinon il est **rejeté** ;
+- le chemin parcouru est affiché (`A --a--> B`) ;
+- un symbole qui n'est pas dans l'alphabet est signalé ;
+- le mot vide se teste en laissant le champ vide.
 
 ## Résultat
 

@@ -2,6 +2,7 @@
 
 Test 1 : on compare avec la réponse donnée dans le cours (Fig. 4).
 Test 2 : sur 300 AFND aléatoires, l'AFD doit accepter exactement les mêmes mots que l'AFND.
+Test 3 : reconnaissance de mots (et chemin parcouru) sur l'AFD du cours.
 
 Lancer :  python tests_conversion.py
 """
@@ -106,7 +107,8 @@ def test_aleatoire():
         afnd = afnd_aleatoire(hasard)
         afd, noms, etapes = construire_afd(afnd)     # lève une erreur si l'AFD n'est pas complet
         for mot in mots:
-            if afd.reconnaitre(mot) != afnd_accepte(afnd, mot):
+            accepte, chemin, invalides = afd.reconnaitre(mot)
+            if accepte != afnd_accepte(afnd, mot):
                 erreurs += 1
 
     if erreurs == 0:
@@ -116,8 +118,32 @@ def test_aleatoire():
     return erreurs == 0
 
 
+def test_mots():
+    """Test de la reconnaissance de mots sur l'AFD du cours (mots qui se terminent par abb)."""
+    afd, noms, etapes = construire_afd(afnd_cours)
+
+    # (mot, accepté attendu, chemin attendu, symboles invalides attendus)
+    cas = [
+        ("abb", True, ["A", "B", "D", "E"], []),
+        ("aabb", True, ["A", "B", "B", "D", "E"], []),
+        ("ab", False, ["A", "B", "D"], []),
+        ("", False, ["A"], []),
+        ("abc", False, [], ["c"]),
+    ]
+
+    ok = True
+    for mot, accepte_attendu, chemin_attendu, invalides_attendus in cas:
+        if afd.reconnaitre(mot) != (accepte_attendu, chemin_attendu, invalides_attendus):
+            print(f"ECHEC  test 3 : mot '{mot}' mal reconnu : {afd.reconnaitre(mot)}")
+            ok = False
+
+    if ok:
+        print("OK     test 3 : mots acceptés, rejetés, mot vide et symbole invalide (avec le chemin)")
+    return ok
+
+
 if __name__ == "__main__":
-    resultats = [test_cours(), test_aleatoire()]
+    resultats = [test_cours(), test_aleatoire(), test_mots()]
     if not all(resultats):
         raise SystemExit(1)
     print("Tous les tests sont réussis.")

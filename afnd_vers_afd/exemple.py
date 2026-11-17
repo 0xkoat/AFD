@@ -38,4 +38,14 @@ if __name__ == "__main__":
     dessiner_afnd(afnd_cours).render("afnd", cleanup=True)
     dessiner_afd(afd).render("afd", cleanup=True)
     print()
+    print("Test de mots avec l'AFD :")
+    for mot in ["abb", "aabb", "ab", ""]:
+        accepte, chemin, invalides = afd.reconnaitre(mot)
+        if accepte:
+            verdict = "accepté"
+        else:
+            verdict = "rejeté"
+        print(f"  '{mot}' : {verdict}   chemin : {' -> '.join(chemin)}")
+
+    print()
     print("Images créées : afnd.png et afd.png")
